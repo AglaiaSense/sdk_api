@@ -236,8 +236,9 @@ def run_invalid_tests():
     # test_invalid_camera_id(host, json_port)
     # test_unknown_command(host, json_port)
 
+    test_get_dev_info(host, json_port)
+
 if __name__ == "__main__":
     
-    stress_test(1)  # Run the stress test with 100 iterations
+    stress_test(1000)  # Run the stress test with 100 iterations
     #run_invalid_tests()  # Run the invalid tests to check server robustness
-    #test_get_dev_info(SERVER_IP, JSON_PORT)

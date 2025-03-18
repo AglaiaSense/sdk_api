@@ -21,6 +21,8 @@
 #include <filesystem>  // Include this header for filesystem operations
 #include <chrono>  // Include this header for sleep_for
 #include <thread>  // Include this header for sleep_for
+#include <csignal>  // Include this header for signal handling
+#include <fcntl.h>  // Include this header for fcntl
 
 #include "sdk_pack_json.h"
 
@@ -256,6 +258,7 @@ bool get_camera_id_from_json(const json& request_json, const std::string& cmd, s
 }
 
 void parse_cds_set_config(const json& request_json) {
+    #if 0
     if (request_json.contains("app_config")) {
         const auto& app_config = request_json["app_config"];
 
@@ -343,6 +346,7 @@ void parse_cds_set_config(const json& request_json) {
             }
         }
     }
+    #endif
 }
 
 
@@ -558,8 +562,6 @@ void handle_client_connection(int client_socket) {
                 }
                 camera_param.awb_mode = p_recv_mode->val;
                 response_json = pack_get_camera_param_rsp_json(camera_param);
-                        printf("%s(%d): run here\n", __func__, __LINE__);
-
             } else if (cmd == CMD_GET_DEV_INFO_REQ) { 
                 response_json = pack_get_device_info_rsp_json(g_svr_cfg.product_model, g_svr_cfg.sdk_version, g_svr_cfg.camera_id, g_svr_cfg.sn);
             } else if (cmd == CMD_SET_CAMERA_PARAM_REQ) {
@@ -819,9 +821,25 @@ void handle_binary_client_connection(int client_socket) {
     
 }
 
+bool json_thread_running = true;
+bool data_thread_running = true;
+
+void signal_handler(int signal) {
+    if (signal == SIGINT) {
+        json_thread_running = false;
+        data_thread_running = false;
+    }
+}
+
 void start_server(const std::string& host, int json_port, int binary_port) {
+    signal(SIGINT, signal_handler);  // Register the signal handler
+
     int json_server_socket = socket(AF_INET, SOCK_STREAM, 0);
     int binary_server_socket = socket(AF_INET, SOCK_STREAM, 0);
+
+    // Set sockets to non-blocking mode
+    fcntl(json_server_socket, F_SETFL, O_NONBLOCK);
+    fcntl(binary_server_socket, F_SETFL, O_NONBLOCK);
 
     sockaddr_in json_server_addr = {};
     json_server_addr.sin_family = AF_INET;
@@ -843,19 +861,32 @@ void start_server(const std::string& host, int json_port, int binary_port) {
     log_message("Data Server listening on " + host + ":" + std::to_string(binary_port));
     
     std::thread json_thread([&]() {
-        while (true) {
+        while (json_thread_running) {
             int client_socket = accept(json_server_socket, nullptr, nullptr);
-            log_message("Accepted Cmd connection");
-            std::thread(handle_client_connection, client_socket).detach();
+            if (client_socket >= 0) {
+                log_message("Accepted Cmd connection");
+                std::thread(handle_client_connection, client_socket).detach();
+            } else if (errno != EWOULDBLOCK && errno != EAGAIN) {
+                log_message("Error on accept for Cmd Server");
+            }
+            std::this_thread::sleep_for(std::chrono::microseconds(10));  // Avoid busy-waiting
+            //printf("=================== %d \n", client_socket);
         }
+        close(json_server_socket);
     });
 
     std::thread binary_thread([&]() {
-        while (true) {
+        while (data_thread_running) {
             int client_socket = accept(binary_server_socket, nullptr, nullptr);
-            log_message("Accepted Data connection");
-            std::thread(handle_binary_client_connection, client_socket).detach();
+            if (client_socket >= 0) {
+                log_message("Accepted Data connection");
+                std::thread(handle_binary_client_connection, client_socket).detach();
+            } else if (errno != EWOULDBLOCK && errno != EAGAIN) {
+                log_message("Error on accept for Data Server");
+            }
+            std::this_thread::sleep_for(std::chrono::microseconds(10));  // Avoid busy-waiting
         }
+        close(binary_server_socket);
     });
 
     json_thread.join();
