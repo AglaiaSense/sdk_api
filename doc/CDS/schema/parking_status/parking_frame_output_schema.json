@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aitrios:app:output:frame:parking",
+  "version": "1.0.3",
+  "type": "object",
+  "description": "Results of parking space occupancy and details",
+  "additionalProperties": {
+    "type": "object",
+    "properties": {
+      "occupied": {
+        "type": "boolean",
+        "description": "Indicates if the parking space is occupied"
+      },
+      "parking_dwell_time": {
+        "type": "integer",
+        "description": "Dwell time in minutes for the parked vehicle"
+      },
+      "double_parking_status": {
+        "type": "boolean",
+        "description": "Indicates if the vehicle is double parked"
+      },
+      "double_parking_dwell_time": {
+        "type": "integer",
+        "description": "Dwell time in minutes for the double parked vehicle"
+      },
+      "double_parking_location": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "description": "Array of coordinates for the double parked vehicle location"
+      },
+      "vehicle_blocked_lane_types": {
+        "type": "string",
+        "description": "Type of lane blocked by the vehicle, if applicable"
+      }
+    },
+    "required": ["occupied"],
+    "additionalProperties": false
+  }
+}

@@ -167,7 +167,7 @@ def test_download_file(host, port):
             print(f"File MD5 mismatch: expected {file_md5}, got {received_md5}")
 
 def test_upload_file(host, port):
-    file_path = FILE_SAVE_PATH + "/model.zip"  # Replace with the actual path to your file
+    file_path = FILE_SAVE_PATH + "/model1.zip"  # Replace with the actual path to your file
     response = send_binary_file(host, port, file_path)
     print("Upload File Response:", response)
 

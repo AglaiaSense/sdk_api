@@ -15,16 +15,17 @@
 #include <arpa/inet.h>  // Include this header for inet_addr
 #include <unistd.h>
 #include <openssl/md5.h>
+#include <filesystem>  // Include this header for filesystem operations
+//#include <chrono>  // Include this header for sleep_for
+//#include <thread>  // Include this header for sleep_for
+#include <csignal>  // Include this header for signal handling
+#include <fcntl.h>  // Include this header for fcntl
+#include <mutex>
+
+#include "sdk_pack_json.h"
 #include "json.hpp"  // Include the JSON for Modern C++ header
 #include "sdk_log.h"
 #include "date_utils.h"  // Include the new header
-#include <filesystem>  // Include this header for filesystem operations
-#include <chrono>  // Include this header for sleep_for
-#include <thread>  // Include this header for sleep_for
-#include <csignal>  // Include this header for signal handling
-#include <fcntl.h>  // Include this header for fcntl
-
-#include "sdk_pack_json.h"
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;  // Use the correct namespace
@@ -33,7 +34,6 @@ namespace fs = std::filesystem;  // Use the correct namespace
 #define MODEL_FILE_PATH "/home/root/AglaiaSense/GS501/image/CustomNet/"
 
 #define SDK_VERSION "v1.7"
-
 
 #define BUFFER_SIZE 4096
 #define MAIN_LOCAL_PORT 10808
@@ -60,13 +60,6 @@ std::string commands_list[] = {CMD_GET_DEV_INFO_REQ,
     CMD_CDS_GET_CONFIG_REQ, CMD_CDS_SET_CONFIG_REQ,
     CMD_CDS_GET_FRAME_OUTPUT_REQ, CMD_CDS_GET_EVENT_REQ};
 
-typedef struct {
-    int size;
-    std::string md5;
-    std::string format = "";
-    std::string file_path;
-    std::string camera_id;
-}File_Info_t;
 
 enum{
     SET_GAIN = 0x10,
@@ -103,10 +96,14 @@ typedef struct {
     uint32_t val;   //
 }Trans_Mode_t;
 
-File_Info_t g_file_info;
-
-std::string data_thread_mode = "";
-std::string g_model_version = "v1.0";
+typedef struct {
+    int size;
+    std::string md5;
+    std::string format = "";
+    std::string file_path;
+    std::string camera_id;
+    std::string mode;
+}File_Info_t;
 
 typedef struct {
     std::string camera_id;
@@ -116,7 +113,14 @@ typedef struct {
     std::string device_id0;
     std::string device_id1;
     std::string dnn_model;
+    std::string passwd;
 }SVR_Config_t;
+
+
+File_Info_t g_file_info;
+std::mutex g_file_mtx;
+
+std::string g_model_version = "v1.0";
 
 SVR_Config_t g_svr_cfg;
 
@@ -124,9 +128,9 @@ void clear_file_info() {
     g_file_info.size = 0;
     g_file_info.md5 = "";
     g_file_info.format = "";
-    data_thread_mode = "";
     g_file_info.file_path = "";
     g_file_info.camera_id = "";
+    g_file_info.mode = "";
 }
 
 std::pair<std::string, std::string> get_file_info(const std::string& file_path) {
@@ -143,7 +147,7 @@ std::pair<std::string, std::string> get_file_info(const std::string& file_path) 
     }
 
     unsigned char md5_hash[MD5_DIGEST_LENGTH];
-    MD5(buffer.data(), buffer.size(), md5_hash);
+    MD5((unsigned char *)buffer.data(), buffer.size(), (unsigned char *)md5_hash);
 
     std::ostringstream md5_str;
     for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
@@ -217,7 +221,8 @@ bool read_config() {
         g_svr_cfg.sdk_version = SDK_VERSION;
         g_svr_cfg.sn = config.value("SerialNumber", "");
         g_svr_cfg.dnn_model = config.value("DNNModel", "");
-
+        g_svr_cfg.passwd = config.value("ROOT_PASSWORD", "");
+        
         if(g_svr_cfg.camera_id == "dual") {
             g_svr_cfg.device_id0 = config.value("DevId0", "");
             g_svr_cfg.device_id1 = config.value("DevId1", "");
@@ -419,9 +424,8 @@ bool send_request_to_main(Trans_Data_t &data, std::string &camera_id, char *recv
 
     // Add a delay of 100ms
     if (sleep_time > 0) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
+        usleep(sleep_time * 1000);
     }
-
     return true;
 }
 
@@ -693,22 +697,33 @@ void handle_client_connection(int client_socket) {
                 } 
 
                 log_message("Latest JPG file: " + latest_jpg);
-                g_file_info.file_path = latest_jpg;
+                
                 auto [size, md5] = get_file_info(latest_jpg);
+
+                g_file_mtx.lock();
+                g_file_info.file_path = latest_jpg;
                 g_file_info.size = std::stoi(size);
                 g_file_info.md5 = md5;
                 g_file_info.format = "jpg";
-                data_thread_mode = "send";
+                g_file_info.mode = "send";
+                g_file_mtx.unlock();
+
                 response_json = pack_download_file_rsp_json(g_file_info.size, g_file_info.md5);
             } else if (cmd == CMD_UPDATE_MODEL_POCKET_REQ) {
                 // Extract file information from the JSON request
+                printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
+                g_file_mtx.lock();
+                printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
                 g_file_info.size = request_json.value("size", 0);
                 g_file_info.md5 = request_json.value("md5", "");
                 g_file_info.format = request_json.value("format", "");
-                g_model_version = request_json.value("version", "");
-                data_thread_mode = "receive";
                 g_file_info.camera_id = camera_id;
+                g_file_info.mode = "receive";
+                g_file_mtx.unlock();
+                printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
 
+                g_model_version = request_json.value("version", "");
+                
                 response_json = pack_comm_rsp_json(0, rsp_cmd);
                 log_message("Update model pocket request received");
             }
@@ -755,12 +770,16 @@ void handle_client_connection(int client_socket) {
 }
 
 void handle_binary_client_connection(int client_socket) {
-    if (data_thread_mode == "send") {
-        //std::string file_path = "./1.jpg";  // Replace with the actual path to your BMP image
+                printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
+    g_file_mtx.lock();
+                printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
+
+    if (g_file_info.mode == "send") {
         std::ifstream file(g_file_info.file_path, std::ios::binary);
         if (!file.is_open()) {
             log_message("Failed to open file: " + g_file_info.file_path);
             close(client_socket);
+            g_file_mtx.unlock();
             return;
         }
 
@@ -770,14 +789,18 @@ void handle_binary_client_connection(int client_socket) {
         }
 
         send(client_socket, buffer, file.gcount(), 0);
+        clear_file_info();
+        g_file_mtx.unlock();
+        
         std::string rsp_msg = "Send binary file data of size: " + std::to_string(g_file_info.size) + " bytes";
         log_message(rsp_msg);
-        clear_file_info();
         close(client_socket);
-    } else if (data_thread_mode == "receive") {
+    } else if (g_file_info.mode == "receive") {
         std::string file_path = MODEL_FILE_PATH;
         int ret_code = 0;
         std::string rsp_msg;
+        int file_size = 0;
+                printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
 
         if (g_file_info.camera_id == "left") {
             file_path += g_svr_cfg.device_id0 + "/model.zip";
@@ -785,37 +808,62 @@ void handle_binary_client_connection(int client_socket) {
             file_path += g_svr_cfg.device_id1 + "/model.zip";
         }
         log_message("save model file to : "+ file_path);
-        
+
         std::ofstream file(file_path, std::ios::binary);
+                printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
         if (!file.is_open()) {
             log_message("Failed to open file: " + file_path);
+            g_file_mtx.unlock();
             send_comm_response(client_socket, CMD_UPDATE_MODEL_POCKET_RSP, -1, "Failed to open file");
             return;
         }
+                printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
 
         char buffer[BUFFER_SIZE];
         int received_size = 0;
         while (received_size < g_file_info.size) {
             int bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0);
             if (bytes_received <= 0) {
-                log_message("Failed to receive data or connection closed");
-                break;
+                int error = errno;
+                if(error == ECONNRESET) {
+                    log_message("client connection closed");
+                    close(client_socket);
+                }else {
+                    log_message("Failed to receive data");
+                    send_comm_response(client_socket, CMD_UPDATE_MODEL_POCKET_RSP, -1, "recv data error");
+                }
+
+                g_file_mtx.unlock();
+                return ;
             }
             file.write(buffer, bytes_received);
             received_size += bytes_received;
         }
+        file_size = g_file_info.size;
+        clear_file_info();
+        g_file_mtx.unlock();
+                printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
 
+        try {
+            auto [size, md5] = get_file_info(file_path);
+            printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
+        }catch (const std::exception& e) {        
+            send_comm_response(client_socket, CMD_UPDATE_MODEL_POCKET_RSP, -1, e.what());
+            log_message(e.what());
+            return;
+        }
         // Validate the received file
-        auto [size, md5] = get_file_info(file_path);
         json response_json;
         //if (std::stoi(size) == g_file_info.size && md5 == g_file_info.md5) {
-        if (received_size != g_file_info.size) {
+        if (received_size != file_size) {
             rsp_msg = "File validation failed";
             ret_code = -1;
         }
+                printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
 
         send_comm_response(client_socket, CMD_UPDATE_MODEL_POCKET_RSP, ret_code, rsp_msg);
-        clear_file_info();
+                        printf("%s(%d): run here \n", __FUNCTION__, __LINE__);
+
     }
 
     
@@ -854,8 +902,8 @@ void start_server(const std::string& host, int json_port, int binary_port) {
     bind(json_server_socket, (sockaddr*)&json_server_addr, sizeof(json_server_addr));
     bind(binary_server_socket, (sockaddr*)&binary_server_addr, sizeof(binary_server_addr));
 
-    listen(json_server_socket, 5);
-    listen(binary_server_socket, 5);
+    listen(json_server_socket, 1);
+    listen(binary_server_socket, 1);
 
     log_message("Cmd Server listening on " + host + ":" + std::to_string(json_port));
     log_message("Data Server listening on " + host + ":" + std::to_string(binary_port));
@@ -869,8 +917,7 @@ void start_server(const std::string& host, int json_port, int binary_port) {
             } else if (errno != EWOULDBLOCK && errno != EAGAIN) {
                 log_message("Error on accept for Cmd Server");
             }
-            std::this_thread::sleep_for(std::chrono::microseconds(10));  // Avoid busy-waiting
-            //printf("=================== %d \n", client_socket);
+            usleep(10);
         }
         close(json_server_socket);
     });
@@ -884,7 +931,7 @@ void start_server(const std::string& host, int json_port, int binary_port) {
             } else if (errno != EWOULDBLOCK && errno != EAGAIN) {
                 log_message("Error on accept for Data Server");
             }
-            std::this_thread::sleep_for(std::chrono::microseconds(10));  // Avoid busy-waiting
+            usleep(10);
         }
         close(binary_server_socket);
     });

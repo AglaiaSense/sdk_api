@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aitrios:app:output:event:asset",
+  "version": "1.0.3",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "integer",
+      "description": "Unique identifier for the vandalism incident"
+    },
+
+    "curb_object_id": {
+      "type": "string",
+      "description": "Unique identifier for the asset that was vandalized"
+    },
+
+    "curb_object_type": {
+      "type": "string",
+      "enum": ["signage", "bus_stop", "bike_rack", "scooter_parking", "ev_charging", "ramp", "meter", "pay_station", "paint", "lighting", "signal_cabinet", "utility_box", "fire_hydrant", "surveillance_camera", "barrier", "bollard", "street_trees", "planter", "drinking_fountain", "toilet", "bench", "sculpture", "art", "fountain", "solid_waste_bins", "post_box", "locker", "food_vendor", "other", "unspecified"],
+      "description": "Type of the asset that was vandalized"
+    },
+
+    "event_location": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "integer"
+        },
+        "dwell_time": {
+          "type": "number",
+          "description": "Duration of time the person has been in the specified area for more than the specified time. [seconds]"
+        },
+        "geometry": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["Point"]
+            },
+            "coordinates": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": ["type", "coordinates"]
+        }
+      },
+      "required": ["timestamp", "dwell_time", "geometry"]
+    },
+    
+    "status": {
+      "type": "string",
+      "enum": ["on", "off"],
+      "description": "Current status of the vandalism incident"
+    },
+
+    "curb_zone_id": {
+      "type": "string"
+    },
+		  
+    "curb_area_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+		  
+    "curb_space_id": {
+      "type": "string"
+    },
+
+    "intruder_ids": {
+      "type": "array",
+        "items": {
+          "type": "integer"
+        },
+      "description": "Unique identifier for the intruders who vandalized the asset"
+    }
+  },
+  "required": [
+    "event_id", "curb_object_id", "curb_object_type", "event_location", "status", "curb_zone_id", "curb_area_ids", "intruder_ids"
+  ],
+  "additionalProperties": false
+}

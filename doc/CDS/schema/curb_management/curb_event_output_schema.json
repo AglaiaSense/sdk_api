@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aitrios:app:output:event:curb",
+  "version": "1.0.3",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "integer"
+    },
+    
+    "event_type": {
+      "type": "string",
+      "enum": ["comms_lost", "comms_restored", "decommissioned", "park_start", "park_end", "scheduled_report", "enter_area", "exit_area"]
+    },
+    
+    "event_purpose": {
+      "type": "string",
+      "enum": ["construction", "delivery", "emergency_use", "parking", "passenger_transport", "special_events", "waste_management", "device_maintenance", "autonomous", "ems", "fire", "food_delivery", "parcel_delivery", "police", "public_transit", "ride_hail", "road_maintenance", "service_vehicles", "taxi", "utility_work", "vehicle_charging", "vehicle_parking", "vending", "unspecified"]
+    },
+    
+    "event_location": {
+      "type": "object",
+      "properties": {
+        "timestamp": {
+          "type": "integer"
+        },
+        "speed": {
+          "type": "number"
+        },
+        "geometry": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["Point"]
+            },
+            "coordinates": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          },
+          "required": ["type", "coordinates"]
+        }
+      },
+      "required": ["timestamp", "speed", "geometry"]
+    },
+
+    "event_time": {
+      "type": "string"
+    },
+		  
+    "event_publication_time": {
+      "type": "string"
+    },
+		  
+    "curb_zone_id": {
+      "type": "string"
+    },
+		  
+    "curb_area_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+		  
+    "curb_space_id": {
+      "type": "string"
+    },
+		  
+    "object_id": {
+      "type": "integer"
+    },
+
+    "vehicle_length": {
+      "type": "integer"
+    },
+		  
+    "vehicle_type": {
+      "type": "string",
+      "enum": ["bicycle", "cargo_bicycle", "car", "scooter", "moped", "motorcycle", "truck", "van", "freight", "other", "unspecified"]
+    },
+		  
+    "vehicle_blocked_lane_types": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["travel_lane", "turn_lane", "bike_lane", "bus_lane", "parking", "shoulder", "median", "sidewalk", "unspecified"]
+      }
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "event_purpose",
+    "event_location",
+    "event_time",
+    "event_publication_time",
+    "curb_zone_id",
+    "curb_area_ids",
+    "object_id",
+    "vehicle_type"
+  ],
+  "additionalProperties": false
+}

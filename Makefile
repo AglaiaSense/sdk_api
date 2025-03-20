@@ -7,7 +7,7 @@ LD = $(CROSS_COMPILE)g++
 
 # Compiler flags
 CFLAGS = -Wall -O2 -std=c++17 -Iinc 
-#CFLAGS += -DDBG_EN
+CFLAGS += -DDBG_EN
 LDFLAGS = -lssl -lcrypto
 
 # Source files directory

@@ -1,0 +1,221 @@
+{
+  "app_config": {
+
+	"general_config":{
+		"source_type": "camera",
+		"camera_id": 1,
+		"input_tensor_height": 480,
+		"input_tensor_width": 640,
+		"output_tensor_height": 480,
+		"output_tensor_width": 640
+	},
+
+	"counting_config":{
+		"counting_type": "total",
+		"counting_interval": {
+			"unit": "minute",
+			"interval": 5
+		},
+		"counting_boundary":[
+			{
+				"boundary_id": "traffic_NB",
+				"geometry": {
+				  "type": "LineString",
+				  "coordinates": [[
+					[100.0, 0.0],
+					[101.0, 1.0]
+				  ]]
+				}
+			},
+			{
+				"boundary_id": "traffic_SB",
+				"geometry": {
+				  "type": "LineString",
+				  "coordinates": [[
+					[100.0, 0.0],
+					[101.0, 1.0]
+				  ]]
+				}
+			},
+			{
+				"boundary_id": "bike_NB",
+				"geometry": {
+				  "type": "LineString",
+				  "coordinates": [[
+					[100.0, 0.0],
+					[101.0, 1.0]
+				  ]]
+				}
+			},
+			{
+				"boundary_id": "bike_SB",
+				"geometry": {
+				  "type": "LineString",
+				  "coordinates": [[
+					[100.0, 0.0],
+					[101.0, 1.0]
+				  ]]
+				}
+			},
+			{
+				"boundary_id": "pedestrian_NB",
+				"geometry": {
+				  "type": "LineString",
+				  "coordinates": [[
+					[100.0, 0.0],
+					[101.0, 1.0]
+				  ]]
+				}
+			},
+			{
+				"boundary_id": "pedestrian_SB",
+				"geometry": {
+				  "type": "LineString",
+				  "coordinates": [[
+					[100.0, 0.0],
+					[101.0, 1.0]
+				  ]]
+				}
+			}
+		]
+	},
+
+	"curb_config": {
+		"zone": [
+			{
+				"curb_zone_id": "parking_zone_0",
+				"geometry": {
+				  "type": "Polygon",
+				  "coordinates": [[
+					[-73.982105, 40.767932],
+					[-73.973694, 40.764551],
+					[-73.949318, 40.796918],
+					[-73.958416, 40.800686],
+					[-73.982105, 40.767932]
+				  ]]
+				},
+				"curb_space_ids": ["parking_space_0", "parking_space_1"]
+				
+			},
+			{
+				"curb_zone_id": "loading_zone_0",
+				"geometry": {
+				  "type": "Polygon",
+				  "coordinates": [[
+					[-73.982105, 40.767932],
+					[-73.973694, 40.764551],
+					[-73.949318, 40.796918],
+					[-73.958416, 40.800686],
+					[-73.982105, 40.767932]
+				  ]]
+				}
+			},
+			{
+				"curb_zone_id": "bike_lane_0",
+				"geometry": {
+				  "type": "Polygon",
+				  "coordinates": [[
+					[-73.982105, 40.767932],
+					[-73.973694, 40.764551],
+					[-73.949318, 40.796918],
+					[-73.958416, 40.800686],
+					[-73.982105, 40.767932]
+				  ]]
+				}
+			},
+			{
+				"curb_zone_id": "traffic_lane_0",
+				"geometry": {
+				  "type": "Polygon",
+				  "coordinates": [[
+					[-73.982105, 40.767932],
+					[-73.973694, 40.764551],
+					[-73.949318, 40.796918],
+					[-73.958416, 40.800686],
+					[-73.982105, 40.767932]
+				  ]]
+				}
+			},
+			{
+				"curb_zone_id": "sidewalk_0",
+				"geometry": {
+				  "type": "Polygon",
+				  "coordinates": [[
+					[-73.982105, 40.767932],
+					[-73.973694, 40.764551],
+					[-73.949318, 40.796918],
+					[-73.958416, 40.800686],
+					[-73.982105, 40.767932]
+				  ]]
+				},
+				"curb_object_ids": ["asset_0"]
+			}
+		],
+
+		"space": [
+			{
+				"curb_space_id": "parking_space_0",
+				"geometry": {
+				"type": "Polygon",
+				"coordinates": [[
+					[-73.982105, 40.767932],
+					[-73.973694, 40.764551],
+					[-73.949318, 40.796918],
+					[-73.958416, 40.800686],
+					[-73.982105, 40.767932]
+				]]
+				},
+				"curb_zone_id": "parking_zone_0"
+			},
+			{
+				"curb_space_id": "parking_space_1",
+				"geometry": {
+				"type": "Polygon",
+				"coordinates": [[
+					[-73.982105, 40.767932],
+					[-73.973694, 40.764551],
+					[-73.949318, 40.796918],
+					[-73.958416, 40.800686],
+					[-73.982105, 40.767932]
+				]]
+				},
+				"curb_zone_id": "parking_zone_0"
+			}
+		],
+
+		"object": [
+			{
+				"curb_object_id": "asset_0",
+				"geometry": {
+				"type": "Point",
+				"coordinates": [-73.982105, 40.767932]
+				},
+				"object_type": "signal_cabinet",
+				"curb_zone_id": "sidewalk_0"
+			}
+		]
+	},
+
+	"asset_config":{
+		"dwell_time_threshold": 240
+	},
+
+	"ped_config": {
+		"zone": [
+			{
+				"ped_monitor_zone_id": "ped_zone_0",
+				"geometry": {
+				  "type": "Polygon",
+				  "coordinates": [[
+					[-73.982105, 40.767932],
+					[-73.973694, 40.764551],
+					[-73.949318, 40.796918],
+					[-73.958416, 40.800686],
+					[-73.982105, 40.767932]
+				  ]]
+				}
+			}
+		]
+	}
+  }
+}

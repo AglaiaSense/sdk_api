@@ -1,0 +1,72 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aitrios:app:config:counting",
+  "version": "1.0.3",
+  "type": "object",
+  "properties": {
+
+    "counting_type": {
+      "type": "string",
+      "enum": ["total", "peak", "average"],
+      "description": "Type of count measurement"
+    },
+
+    "counting_interval": {
+      "description": "interval of count measurement",
+      "type": "object",
+      "properties": {
+        "unit": {
+          "type": "string",
+          "enum": ["frame", "second", "minute"]
+        },
+        "interval": {
+          "type": "integer"
+        }
+      }
+    },
+
+    "counting_boundary": {
+      "description": "Boundary configuration for traffic counting",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "boundary_id": {
+            "type": "string"
+          },
+          "geometry": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["LineString", "Polygon"]
+              },
+              "coordinates": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "minItems": 2,
+                    "maxItems": 2
+                  }
+                },
+                "minItems": 1,
+                "maxItems": 1
+              }
+            },
+            "required": ["type", "coordinates"],
+            "additionalProperties": false
+          }
+        },
+        "required": ["boundary_id", "geometry"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["counting_type", "counting_interval", "counting_boundary"],
+  "additionalProperties": false
+}

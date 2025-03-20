@@ -1,0 +1,153 @@
+{
+  "outputs":[
+  {
+    "frame_id": 50,
+    "timestamp": "2023-10-01T12:00:00Z",
+
+    "curb_mgmt_event": {
+      "event_id": 0,
+      "event_type": "park_start",
+      "event_purpose": "parcel_delivery",
+      "event_location": { 
+        "timestamp": 1696161600000,
+        "speed": 1.21,
+        "geometry": {
+          "type": "Point",
+          "coordinates": [ -85.7629808, 38.257341 ]
+        }
+      },
+      "event_time": "1696161600000",
+      "event_publication_time": "1696161600000",
+      "curb_area_ids": ["s_4th_st"],
+      "curb_zone_id": "parking_zone_1",
+      "curb_space_id": "parking_space_3",
+      "object_id": 0,
+      "vehicle_length": 670,
+      "vehicle_type": "truck",
+      "vehicle_blocked_lane_types": ["parking"]
+    }
+  },
+  {
+    "frame_id": 55,
+    "timestamp": "2023-10-01T12:00:00Z",
+
+    "curb_mgmt_event": {
+      "event_id": 1,
+      "event_type": "park_end",
+      "event_purpose": "parcel_delivery",
+      "event_location": {
+        "timestamp": 1696161600000,
+        "speed": 1.21,
+        "geometry": {
+          "type": "Point",
+          "coordinates": [ -85.7629808, 38.257341 ]
+        }
+      },
+      "event_time": "1696161600000",
+      "event_publication_time": "1696161600000",
+      "curb_area_ids": ["s_4th_st"],
+      "curb_zone_id": "parking_zone_1",
+      "curb_space_id": "parking_space_3",
+      "object_id": 0,
+      "vehicle_length": 670,
+      "vehicle_type": "truck",
+      "vehicle_blocked_lane_types": ["parking"]
+    }
+  },
+  {
+    "frame_id": 60,
+    "timestamp": "2023-10-01T12:00:00Z",
+    
+    "counting_event": {
+      "event_id": 2,
+      "event_type": "counting",
+      "event_purpose": "through",
+      "event_time": "1696161600000",
+      "event_publication_time": "1696161600000",
+      "curb_area_ids": ["s_4th_st"],
+      "curb_zone_id": "traffic_lane_0",
+      "boundary_id": "traffic_NB",
+      "vehicle_type": "car",
+      "count": 37,
+      "speed": 1.21
+    }
+  },
+  {
+    "frame_id": 60,
+    "timestamp": "2023-10-01T12:00:00Z",
+    
+    "counting_event": {
+      "event_id": 2,
+      "event_type": "counting",
+      "event_purpose": "through",
+      "event_time": "1696161600000",
+      "event_publication_time": "1696161600000",
+      "curb_area_ids": ["s_4th_st"],
+      "curb_zone_id": "traffic_lane_0",
+      "boundary_id": "traffic_NB",
+      "vehicle_type": "truck",
+      "count": 0,
+      "speed": 0
+    }
+  },
+  {
+    "frame_id": 65,
+    "timestamp": "2023-10-01T12:00:00Z",
+
+    "counting_event": {
+      "event_id": 3,
+      "event_type": "counting",
+      "event_purpose": "through",
+      "event_time": "1696161600000",
+      "event_publication_time": "1696161600000",
+      "curb_area_ids": ["s_4th_st"],
+      "curb_zone_id": "sidewalk_0",
+      "boundary_id": "pedestrian_NB",
+      "vehicle_type": "pedestrian",
+      "count": 3,
+      "speed": 1.21
+    }
+  },
+  {
+    "frame_id": 70,
+    "timestamp": "2023-10-01T12:00:00Z",
+
+    "asset_event": {
+      "event_id": 4,
+      "curb_object_id": "asset_0",
+      "curb_object_type": "signal_cabinet",
+      "event_location": {
+        "timestamp": 1696161600000,
+        "dwell_time": 300,
+        "geometry": {
+          "type": "Point",
+          "coordinates": [ -85.7629808, 38.257341 ]
+        }
+      },
+      "status": "on",
+      "curb_area_ids": ["s_4th_st"],
+      "curb_zone_id": "sidewalk_0",
+      "intruder_ids": [10]
+    }
+  },
+  {
+    "frame_id": 75,
+    "timestamp": "2023-10-01T12:00:00Z",
+
+    "ped_event": {
+      "event_id": 5,
+      "event_type": "enter_area",
+      "ped_monitor_zone_id": "ped_zone_0",
+      "pedestrian_ids": [10],
+      "event_location": {
+        "timestamp": 1696161600000,
+        "geometry": {
+          "type": "Point",
+          "coordinates": [ -85.7629808, 38.257341 ]
+        }
+      },
+      "alarm_status": "on"
+    }
+  }
+]
+}

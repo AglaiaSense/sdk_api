@@ -98,14 +98,75 @@ Messaging based on socket mode, the message body using the json format.The liste
 
 #### 3.1 For Software Companies
 
-##### 3.1.1 Get Device Information
+##### 3.1.1 Login
 
 **[Request Message]**
 
 
 ```json
 {
-    "cmd": "get_dev_info_req"   
+    "cmd": "user_login_req",
+    "username": "xxx",
+    "passwd": "xxxx"
+}
+```
+
+**[Response Message]**
+
+```json
+{
+    "cmd": "user_login_rsp",
+    "ret_code": 0,
+    "token": "xxx",
+    "message": "fail reason"
+}
+```
+
+**[Parameter Description]**
+
+| Name     | Description                                                  | Require/Option |
+| -------- | ------------------------------------------------------------ | -------------- |
+| cmd      | cmd keyword                                                  | R              |
+| username | login username                                               | R              |
+| passwd   | login password                                               | R              |
+| ret_code | 0: the operation was successful<br />-1: failure of an operation | R              |
+| token    | a token to mark a successful connection                      | R              |
+| message  | The message node will describe the reason for the failure    | O              |
+
+**Note:**
+
+**General fields (cmd, ret_code, etc.) will not be repeated, but only the special fields will be explained.**
+
+##### 3.1.2 Logout
+
+**[Request Message]**
+
+
+```json
+{
+    "cmd": "user_logout_req",
+    "token": "xxx"
+}
+```
+
+**[Response Message]**
+
+```json
+{
+    "cmd": "user_logout_rsp",
+    "ret_code": 0
+}
+```
+
+##### 3.1.3 Get Device Information
+
+**[Request Message]**
+
+
+```json
+{
+    "cmd": "get_dev_info_req",
+    "token": "xxx"
 }
 ```
 
@@ -124,14 +185,12 @@ Messaging based on socket mode, the message body using the json format.The liste
 
 **[Parameter Description]**
 
-| Name          | Description                                                  | Require/Option |
-| ------------- | ------------------------------------------------------------ | -------------- |
-| cmd           | cmd keyword                                                  | R              |
-| ret_code      | return code,0:success !0:fail, If error, please view the chapter 4. | R              |
-| product_model | product model description                                    | R              |
-| sdk_version   | current sdk version information                              | R              |
-| camera_num    | current camera number, left / right / dual                   | R              |
-| sn            | Unique identification of the device                          | R              |
+| Name          | Description                                | Require/Option |
+| ------------- | ------------------------------------------ | -------------- |
+| product_model | product model description                  | R              |
+| sdk_version   | current sdk version information            | R              |
+| camera_num    | current camera number, left / right / dual | R              |
+| sn            | Unique identification of the device        | R              |
 ##### 3.1.2 Get Camera Parameter
 
 **[Request Message]**

@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "aitrios:app:output:frame:counting",
+  "version": "1.0.3",
+  "type": "object",
+  "description": "Counts of vehicles and pedestrians at various boundaries",
+  "additionalProperties": {
+    "type": "object",
+    "description": "Boundary ID for traffic counting",
+
+    "additionalProperties": {
+      "type": "integer",
+      "description": "Count of the specified vehicle type"
+    },
+    "properties": {
+      "car": {
+        "type": "integer",
+        "description": "Count of cars"
+      },
+      "truck": {
+        "type": "integer",
+        "description": "Count of trucks"
+      },
+      "bicycle": {
+        "type": "integer",
+        "description": "Count of bicycles"
+      },
+      "motorcycle": {
+        "type": "integer",
+        "description": "Count of motorcycles"
+      },
+      "pedestrian": {
+        "type": "integer",
+        "description": "Count of pedestrians"
+      }
+    }
+  }
+}
